@@ -15,31 +15,37 @@ The system ensures consistent replication and fault tolerance through view chang
 
 #### Terminal 1 - Start Node 0
 ```bash
-cd E:\5567-Lab-3
 python vr_node.py --id 0 --port 6000 --peer_ports 6000,6001,6002,6003
-
 ```
 You will see:
 ``` bath
-✓ Node 0 started at port 6000
+Available commands:
+ status - Check the status
+ data - View the submitted data (log and state)
+ client <acct> <op> <amt> - Submit client request to local node (primary recommended)
+ cancommit vote yes/no <op_index> - Vote for a PREPARE (sends VOTE to primary)
+ do-view-change vote yes/no - Reply to a START-VIEW-CHANGE proposer
+ start-view-change - Broadcast START-VIEW-CHANGE to cluster
+ ack commit/abort <op_index> - Confirm COMMIT or ABORT to primary
+ crash - Simulated crash
+ recover - Recover from crash (sends RECOVERY request)
+ quit - Exit
+
 [node0 P view=0] >>>
 ```
 
 #### Terminal 2 - Start Node 1
 ``` bath
-cd E:\5567-Lab-3
 python vr_node.py --id 1 --port 6001 --peer_ports 6000,6001,6002,6003
 ```
 
 #### Terminal 3 - Start Node 2
 ``` bath
-cd E:\5567-Lab-3
 python vr_node.py --id 2 --port 6002 --peer_ports 6000,6001,6002,6003
 ```
 
 #### Terminal 4 - Start Node 3
 ``` bath
-cd E:\5567-Lab-3
 python vr_node.py --id 3 --port 6003 --peer_ports 6000,6001,6002,6003
 ```
 
@@ -48,7 +54,7 @@ All nodes will show:
 [nodeX B view=0] >>>
 ```
 
-## Normal Operation Protocol
+## 1.Normal Operation Protocol
 ### Step 2: Primary handles client requests
 #### On Node 0 (primary):
 ``` bath
@@ -76,13 +82,10 @@ Then primary collects majority and commits:
 [primary 0] Received vote YES from node1 for op 1
 [primary 0] Received vote YES from node2 for op 1
 [primary 0] Majority YES for op 1 -> broadcasting COMMIT
+[node 0] Applying COMMIT locally for op 1
+[node 0] State now: {'alice': 50}
 ```
 
-All replicas apply:
-``` bath
-[node X] Applying COMMIT op 1
-[node X] State now: {'alice': 50}
-```
 All replicas apply:
 ``` bath
 [node X] Applying COMMIT op 1
@@ -103,7 +106,7 @@ LOG: [
 STATE: {'alice': 50}
 ```
 
-## View Change Protocol
+## 2.View Change Protocol
 ### Step 4: Simulate primary crash
 #### On Node 0:
 ``` bath
@@ -121,23 +124,32 @@ Output:
 start-view-change
 ```
 
-Backup (2, 3) receives:
+You will see:
 ``` bath
-[node X] XXXXXXX
+[node 1] Broadcasted START-VIEW-CHANGE for view 1
 ```
 
+Backup (2, 3) receives:
+``` bath
+[node X] Received START-VIEW-CHANGE for view 1 from 1
+[node X] Please manually issue 'do-view-change vote yes/no' to send DO-VIEW-CHANGE to proposer 1
+```
 
 #### On Node 2/3 (backup):
 ``` bath
 do-view-change vote yes
 ```
 
-You will see:
+On node 1, you will see:
 ``` bath
 [node 1] Broadcasted START-VIEW-CHANGE for view 1
-[primary 1] Collected DO-VIEW-CHANGE from 2; collected 1
+[node1 B view=0] >>> [primary 1] Collected DO-VIEW-CHANGE from 2; collected 1
 [primary 1] Collected DO-VIEW-CHANGE from 3; collected 2
 [primary 1] Broadcasting START-VIEW for view 1
+```
+On node 2/3, you will see:
+``` bath
+[node X] View installed: view=1, primary=1
 ```
 现在 Node 1 成为新主（[node1 P view=1]）。
 
@@ -180,7 +192,7 @@ LOG: [
 STATE: {'alice': 10}
 ```
 
-## Replica Recovery Protocol
+## 3.Replica Recovery Protocol
 ### Step 7: Recover the crashed replica and synchronize
 #### On Node 0 (previous primary):
 ``` bath
@@ -188,14 +200,14 @@ recover
 ```
 You will see:
 ``` bath
-[node 0] Recovering... Sending RECOVERY request to peers
+[node 0] Recovering... Sending RECOVERY request to primary 0
 [node 0] Received RECOVERY_REPLY from 1
-[node 0] Recovery installed view=1, primary=1, log_len=2
-[node 0] Rebuilding state from log ...
-[node 0] REPLAY op1 deposit 50 -> alice: 0 -> 50
-[node 0] REPLAY op2 withdraw 40 -> alice: 50 -> 10
-[node 0] Rebuild done. state={'alice': 10}
-[node0 B view=1] >>>
+[node0 P view=0] >>> [node 0] Rebuilding state from log ...
+[node 0] REPLAY op1 view=0 deposit 50 -> alice: 0 -> 50
+[node 0] REPLAY op2 view=1 withdraw 40 -> alice: 50 -> 10
+[node 0] Rebuild done. commit_index=2, state={'alice': 10}
+[node 0] Received RECOVERY_REPLY from 3
+[node 0] Received RECOVERY_REPLY from 2
 ```
 
 Verify on Node 0:
@@ -212,6 +224,7 @@ LOG: [
     "request": {"account":"alice","operation":"withdraw","amount":"40"} }
 ]
 STATE: {'alice': 10}
+[node0 B view=1] >>>
 ```
 
 
