@@ -30,7 +30,7 @@ Available commands:
  ack commit/abort <op_index> - Confirm COMMIT or ABORT to primary
  crash - Simulated crash
  recover - Recover from crash (sends RECOVERY request)
- quit - Exit
+ quit - Exit node and clear its log file
 
 [node0 P view=0] >>>
 ```
@@ -255,6 +255,7 @@ quit
 ## Commands Reference
 ``` bath
 status                       # Check node role & current view
+list                         # Show current primary and replica nodes
 data                         # Print local log & state
 client <acct> <op> <amt>     # Submit a client request (e.g., client alice deposit 50)
 cancommit vote yes/no <id>   # Vote for PREPARE <op_index>
@@ -262,7 +263,7 @@ start-view-change            # Initiate a new view change
 do-view-change vote yes      # Approve a new primary (if required by your code)
 crash                        # Simulate a crash (stop processing messages)
 recover                      # Recover and synchronize from peers
-quit                         # Exit node
+quit                         # Exit node and clear its log file
 ```
 
 
