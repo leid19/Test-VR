@@ -21,6 +21,7 @@ You will see:
 ``` bath
 Available commands:
  status - Check the status
+ list - Show current primary and replica nodes
  data - View the submitted data (log and state)
  client <acct> <op> <amt> - Submit client request to local node (primary recommended)
  cancommit vote yes/no <op_index> - Vote for a PREPARE (sends VOTE to primary)
@@ -32,6 +33,20 @@ Available commands:
  quit - Exit
 
 [node0 P view=0] >>>
+```
+
+#### list
+You will see:
+``` bath
+[node0 P view=0] >>> list
+============================================================
+[node 0] ROLE=PRIMARY | view=0 | crashed=False
+------------------------------------------------------------
+Current Primary : node0
+Replica Nodes   : node1, node2, node3
+------------------------------------------------------------
+Local Role Map  : node0: PRIMARY, node1: BACKUP, node2: BACKUP, node3: BACKUP
+============================================================
 ```
 
 #### Terminal 2 - Start Node 1
