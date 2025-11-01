@@ -27,7 +27,6 @@ Available commands:
  cancommit vote yes/no <op_index> - Vote for a PREPARE (sends VOTE to primary)
  do-view-change vote yes/no - Reply to a START-VIEW-CHANGE proposer
  start-view-change - Broadcast START-VIEW-CHANGE to cluster
- ack commit/abort <op_index> - Confirm COMMIT or ABORT to primary
  crash - Simulated crash
  recover - Recover from crash (sends RECOVERY request)
  quit - Exit node and clear its log file
@@ -90,7 +89,7 @@ Each backup (1, 2, 3) receives:
 ### Step 3: Backups vote YES
 #### On Node 1, Node 2, Node 3:
 ##### cancommit vote yes/no id （id denotes the voted transaction op id, such as 1, 2, 3, 4, etc.）
-##### The total number of nodes is $\b{2f + 1}$. Once other $\b{f}$ votes of “yes” are received, the operation can be committed.
+##### The total number of nodes is $2f + 1$. Once other $f$ votes of “yes” are received, the operation can be committed.
 ##### For example, in a system with 5 nodes (1 primary node and 4 replica nodes), receiving 2 “vote yes” messages from replica nodes is sufficient to commit the operation.
 ``` bath
 cancommit vote yes 1
