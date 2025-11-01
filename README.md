@@ -72,8 +72,8 @@ All nodes will show:
 ## 1.Normal Operation Protocol
 ### Step 2: Primary handles client requests
 #### On Node 0 (primary):
-##### op命令说明 >> client XXX deposit/withdraw BBB: XXX 指账户名， BBB 指数值，可自定义
-``` bath
+##### The op command description >> client XXX deposit/withdraw BBB
+##### Explanation: XXX represents the account name, and BBB represents a customizable numeric value.
 client alice deposit 50
 ```
 
@@ -90,7 +90,8 @@ Each backup (1, 2, 3) receives:
 ### Step 3: Backups vote YES
 #### On Node 1, Node 2, Node 3:
 ##### cancommit vote yes/no id （id denotes the voted transaction op id, such as 1, 2, 3, 4, etc.）
-##### 总节点数为2f+1，收到f个vote yes就可以commit，例如5个节点（1个主节点，4个复制节点），收到2个节点vote yes即可提交操作
+##### The total number of nodes is $\b{2f + 1}$. Once other $\b{f}$ votes of “yes” are received, the operation can be committed.
+##### For example, in a system with 5 nodes (1 primary node and 4 replica nodes), receiving 2 “vote yes” messages from replica nodes is sufficient to commit the operation.
 ``` bath
 cancommit vote yes 1
 ```
@@ -136,7 +137,7 @@ Output:
 [node 0] Simulated CRASH. Node will not process messages until 'recover'
 ```
 
-### Step 5: Start view change and elect a new primary (view change按照从小到大的顺序进行，例如发生crash时主节点id为0，则下一个切换主节点id为1)
+### Step 5: Start view change and elect a new primary (The view change process follows an ascending order. For example, if a crash occurs when the primary node’s id is 0, the next primary node will have id 1.)
 #### On Node 1 (backup):
 ``` bath
 start-view-change
@@ -247,7 +248,7 @@ STATE: {'alice': 10}
 
 
 ## Shutdown:
-在所有终端输入：
+Enter the following command on all terminals:
 ``` bath
 quit
 ```
